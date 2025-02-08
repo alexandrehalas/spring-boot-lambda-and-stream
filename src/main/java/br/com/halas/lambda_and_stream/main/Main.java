@@ -35,7 +35,12 @@ public class Main {
             var season = dataConverterService.getData(seasonJson, Season.class);
             seasons.add(season);
         }
-        seasons.forEach(System.out::println);
+
+        System.out.println("\nSerie: " + serie.title());
+        seasons.forEach(season -> {
+            System.out.println("\nSeason " + season.season() + ": ");
+            season.episodes().forEach(episode -> System.out.println(episode.title()));
+        });
     }
 
 }
