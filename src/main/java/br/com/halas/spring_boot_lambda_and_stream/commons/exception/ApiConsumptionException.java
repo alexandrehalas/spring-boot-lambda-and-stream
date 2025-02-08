@@ -5,4 +5,5 @@ public class ApiConsumptionException extends RuntimeException {
     public ApiConsumptionException(Exception e) {
         super(e);
     }
+
 }
