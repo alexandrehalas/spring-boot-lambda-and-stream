@@ -1,4 +1,4 @@
-package br.com.halas.spring_boot_lambda_and_stream.commons.exception;
+package br.com.halas.lambda_and_stream.exceptions;
 
 public class ApiConsumptionException extends RuntimeException {
 

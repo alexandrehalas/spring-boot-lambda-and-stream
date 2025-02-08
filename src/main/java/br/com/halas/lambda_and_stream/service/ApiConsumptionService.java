@@ -1,6 +1,6 @@
-package br.com.halas.spring_boot_lambda_and_stream.commons;
+package br.com.halas.lambda_and_stream.service;
 
-import br.com.halas.spring_boot_lambda_and_stream.commons.exception.ApiConsumptionException;
+import br.com.halas.lambda_and_stream.exceptions.ApiConsumptionException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -8,7 +8,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class ApiConsumption {
+public class ApiConsumptionService {
 
     public String getData(String endereco) {
 
