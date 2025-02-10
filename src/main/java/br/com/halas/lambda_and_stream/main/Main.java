@@ -1,12 +1,15 @@
 package br.com.halas.lambda_and_stream.main;
 
-import br.com.halas.lambda_and_stream.model.Season;
-import br.com.halas.lambda_and_stream.model.Serie;
+import br.com.halas.lambda_and_stream.model.data.EpisodeData;
+import br.com.halas.lambda_and_stream.model.data.SeasonData;
+import br.com.halas.lambda_and_stream.model.data.SerieData;
 import br.com.halas.lambda_and_stream.service.ApiConsumptionService;
 import br.com.halas.lambda_and_stream.service.DataConverterService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -21,26 +24,37 @@ public class Main {
 
     public void showMenu() {
 
-        System.out.println("Enter the 'NAME' of the serie");
+        System.out.println("Enter the 'NAME' of the serieData");
         var serieName = scanner.nextLine();
 
         var serieUrl = URL + serieName.replace(" ", "+") + API_KEY;
         var serieJson = apiConsumptionService.getData(serieUrl);
-        var serie = dataConverterService.getData(serieJson, Serie.class);
+        var serieData = dataConverterService.getData(serieJson, SerieData.class);
 
-        var seasons = new ArrayList<Season>();
-        for (int i = 1; i < serie.totalSeasons(); i++) {
+        var seasonDataList = new ArrayList<SeasonData>();
+        for (int i = 1; i < serieData.totalSeasons(); i++) {
             var seasonUrl = URL + serieName.replace(" ", "+") + SEASON + i + API_KEY;
             var seasonJson = apiConsumptionService.getData(seasonUrl);
-            var season = dataConverterService.getData(seasonJson, Season.class);
-            seasons.add(season);
+            var seasonData = dataConverterService.getData(seasonJson, SeasonData.class);
+            seasonDataList.add(seasonData);
         }
 
-        System.out.println("\nSerie: " + serie.title());
-        seasons.forEach(season -> {
-            System.out.println("\nSeason " + season.season() + ": ");
-            season.episodes().forEach(episode -> System.out.println(episode.title()));
+        System.out.println("\nSerie: " + serieData.title());
+        seasonDataList.forEach(seasonData -> {
+            System.out.println("\nSeason " + seasonData.season() + ": ");
+            seasonData.episodeData().forEach(episodeData -> System.out.println(episodeData.title()));
         });
+
+        var episodeDataList = seasonDataList.stream()
+                .flatMap(s -> s.episodeData().stream())
+                .collect(Collectors.toList());
+
+        System.out.println("\nTop 5 episodeDataList:");
+        episodeDataList.stream()
+                .filter(episodeData -> !episodeData.rating().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(EpisodeData::rating).reversed())
+                .limit(5)
+                .forEach(System.out::println);
     }
 
 }
