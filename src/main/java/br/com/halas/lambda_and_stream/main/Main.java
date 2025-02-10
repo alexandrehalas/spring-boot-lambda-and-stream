@@ -1,11 +1,14 @@
 package br.com.halas.lambda_and_stream.main;
 
+import br.com.halas.lambda_and_stream.model.Episode;
 import br.com.halas.lambda_and_stream.model.data.EpisodeData;
 import br.com.halas.lambda_and_stream.model.data.SeasonData;
 import br.com.halas.lambda_and_stream.model.data.SerieData;
 import br.com.halas.lambda_and_stream.service.ApiConsumptionService;
 import br.com.halas.lambda_and_stream.service.DataConverterService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
@@ -24,7 +27,7 @@ public class Main {
 
     public void showMenu() {
 
-        System.out.println("Enter the 'NAME' of the serieData");
+        System.out.println("Enter the 'NAME' of the serie");
         var serieName = scanner.nextLine();
 
         var serieUrl = URL + serieName.replace(" ", "+") + API_KEY;
@@ -42,7 +45,7 @@ public class Main {
         System.out.println("\nSerie: " + serieData.title());
         seasonDataList.forEach(seasonData -> {
             System.out.println("\nSeason " + seasonData.season() + ": ");
-            seasonData.episodeData().forEach(episodeData -> System.out.println(episodeData.title()));
+            seasonData.episodeData().forEach(episodeData -> System.out.println(episodeData.title() + " - " + episodeData.releasedDate()));
         });
 
         var episodeDataList = seasonDataList.stream()
@@ -55,6 +58,28 @@ public class Main {
                 .sorted(Comparator.comparing(EpisodeData::rating).reversed())
                 .limit(5)
                 .forEach(System.out::println);
+
+        var episodes = seasonDataList.stream()
+                .flatMap(s -> s.episodeData().stream()
+                        .map(e -> new Episode(s.season(), e))
+                ).collect(Collectors.toList());
+
+        episodes.forEach(System.out::println);
+
+        System.out.println("Enter the 'YEAR' of the serie episodes");
+        var year = scanner.nextInt();
+        scanner.nextLine();
+
+        var searchDate = LocalDate.of(year, 1, 1);
+
+        var dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        episodes.stream()
+                .filter(episode -> episode.getReleasedDate() != null && episode.getReleasedDate().isAfter(searchDate))
+                .forEach(episode -> System.out.println(
+                        "Season: " + episode.getSeason() +
+                                " Episode: " + episode.getTitle() +
+                                " Released Date: " + dateTimeFormatter.format(episode.getReleasedDate())));
+
     }
 
 }
